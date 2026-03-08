@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, Upload, Target, BrainCircuit, ArrowRight } from "lucide-react";
+import { Search, Upload, Target, BrainCircuit, ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
