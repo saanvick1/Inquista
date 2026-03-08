@@ -3,67 +3,42 @@ import { Microscope, Beaker, CheckCircle2, ChevronRight, Share2, Save, Sparkles 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-
-const MOCK_DESIGNS = [
-  {
-    hypothesis: "Implementing meta-learning techniques (MAML) on low-resolution bone X-ray datasets will improve classification accuracy of early osteoporosis by at least 10% compared to standard ResNet-50 architectures.",
-    variables: {
-      independent: "Training methodology (Standard CNN vs Meta-Learning)",
-      dependent: "Classification accuracy, False Negative Rate, Inference Time",
-      control: "Dataset size, Resolution limits, Hardware, Epochs"
-    },
-    methodology: [
-      "Data Preprocessing: Downsample high-res public datasets to simulate clinical low-res environments.",
-      "Model Setup: Initialize ResNet-50 as baseline and a MAML framework.",
-      "Training Phase: Train standard model on 80% split. Train MAML model on diverse but sparse tasks.",
-      "Evaluation: Compare models on a held-out test set focusing on minority demographic samples."
-    ],
-    metrics: ["Accuracy", "Precision", "Recall", "F1-Score", "AUC-ROC"]
-  },
-  {
-    hypothesis: "Event-based neuromorphic vision sensors will detect early-stage ignition events in dense canopy environments with 40% lower latency than traditional continuous-frame thermal imaging systems.",
-    variables: {
-      independent: "Sensor Type (Event-based camera vs Standard Thermal Camera)",
-      dependent: "Detection Latency (ms), False Positive Rate, Power Consumption",
-      control: "Ignition source intensity, Canopy density (simulated), Distance to target, Ambient temperature"
-    },
-    methodology: [
-      "Environment Setup: Construct a climate-controlled chamber simulating varying canopy densities.",
-      "Calibration: Synchronize event camera and thermal camera fields of view.",
-      "Testing Phase: Initiate controlled micro-ignition events and record sensor response times.",
-      "Data Analysis: Calculate median detection delay and analyze signal-to-noise ratio in high-clutter environments."
-    ],
-    metrics: ["Detection Latency", "SNR", "Power Draw (mW)", "False Alarm Rate"]
-  },
-  {
-    hypothesis: "Utilizing LLM-driven autonomous agents using localized knowledge bases will identify 25% more zero-day vulnerabilities in novel smart contract architectures compared to static analysis tools like Slither.",
-    variables: {
-      independent: "Analysis Method (LLM Agent Swarm vs Static Analysis Tool)",
-      dependent: "Vulnerabilities Found, False Positive Rate, Time to Detection",
-      control: "Smart contract complexity (LoC), Underlying blockchain protocol, Allowed execution time"
-    },
-    methodology: [
-      "Corpus Preparation: Select 50 recently audited, complex DeFi contracts spanning different logic paradigms.",
-      "Baseline Evaluation: Run standard static analysis (Slither/Mythril) and record findings.",
-      "Agent Deployment: Deploy a multi-agent LLM framework (Auditor, Attacker, Verifier) on the same corpus.",
-      "Comparison: Cross-reference findings with professional audit reports to determine true zero-day discovery rates."
-    ],
-    metrics: ["True Positive Rate", "False Positive Rate", "Vulnerabilities per Hour", "Logic Flaw Detection %"]
-  }
-];
+import { useToast } from "@/hooks/use-toast";
 
 export default function ExperimentDesigner() {
   const [isDesigning, setIsDesigning] = useState(false);
   const [design, setDesign] = useState<null | any>(null);
-  const [designCount, setDesignCount] = useState(0);
+  const [topicInput, setTopicInput] = useState("");
+  const { toast } = useToast();
 
   const handleDesign = () => {
+    if (!topicInput.trim()) {
+      toast({
+        title: "Input required",
+        description: "Please enter a research idea before generating an experimental design.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsDesigning(true);
-    const nextIndex = designCount % MOCK_DESIGNS.length;
     
     setTimeout(() => {
-      setDesign(MOCK_DESIGNS[nextIndex]);
-      setDesignCount(prev => prev + 1);
+      setDesign({
+        hypothesis: `Applying advanced methodologies to "${topicInput}" will significantly improve performance and reveal novel insights compared to standard baseline approaches.`,
+        variables: {
+          independent: "Proposed Experimental Framework vs Traditional Baseline",
+          dependent: "Primary evaluation metrics (e.g., Accuracy, Efficiency, Error Rate)",
+          control: "Dataset constraints, Hardware environment, Testing parameters"
+        },
+        methodology: [
+          "Phase 1 - Preparation: Curate and preprocess the data specific to the defined domain.",
+          "Phase 2 - Setup: Establish baseline control models alongside the proposed experimental architecture.",
+          "Phase 3 - Execution: Run rigorous testing under controlled environments using standardized splits.",
+          "Phase 4 - Analysis: Compare results against baseline to determine statistically significant improvements."
+        ],
+        metrics: ["Primary Success Metric", "False Positive Rate", "Processing Latency", "Statistical Significance (p-value)"]
+      });
       setIsDesigning(false);
     }, 2000);
   };
@@ -78,7 +53,7 @@ export default function ExperimentDesigner() {
           Experiment Designer
         </h1>
         <p className="text-muted-foreground font-serif text-lg">
-          Structure your methodology, define variables, and establish robust evaluation metrics.
+          Structure your methodology, define variables, and establish robust evaluation metrics based on your unique topic.
         </p>
       </div>
 
@@ -91,6 +66,8 @@ export default function ExperimentDesigner() {
             <Textarea 
               placeholder="e.g., Using meta-learning to detect early osteoporosis in low-resolution X-rays..."
               className="min-h-[100px] text-lg resize-none"
+              value={topicInput}
+              onChange={(e) => setTopicInput(e.target.value)}
             />
           </div>
           <Button 
