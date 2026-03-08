@@ -1,31 +1,69 @@
 import { useState } from "react";
-import { Microscope, Beaker, CheckCircle2, ChevronRight, Share2, Save } from "lucide-react";
+import { Microscope, Beaker, CheckCircle2, ChevronRight, Share2, Save, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 
+const MOCK_DESIGNS = [
+  {
+    hypothesis: "Implementing meta-learning techniques (MAML) on low-resolution bone X-ray datasets will improve classification accuracy of early osteoporosis by at least 10% compared to standard ResNet-50 architectures.",
+    variables: {
+      independent: "Training methodology (Standard CNN vs Meta-Learning)",
+      dependent: "Classification accuracy, False Negative Rate, Inference Time",
+      control: "Dataset size, Resolution limits, Hardware, Epochs"
+    },
+    methodology: [
+      "Data Preprocessing: Downsample high-res public datasets to simulate clinical low-res environments.",
+      "Model Setup: Initialize ResNet-50 as baseline and a MAML framework.",
+      "Training Phase: Train standard model on 80% split. Train MAML model on diverse but sparse tasks.",
+      "Evaluation: Compare models on a held-out test set focusing on minority demographic samples."
+    ],
+    metrics: ["Accuracy", "Precision", "Recall", "F1-Score", "AUC-ROC"]
+  },
+  {
+    hypothesis: "Event-based neuromorphic vision sensors will detect early-stage ignition events in dense canopy environments with 40% lower latency than traditional continuous-frame thermal imaging systems.",
+    variables: {
+      independent: "Sensor Type (Event-based camera vs Standard Thermal Camera)",
+      dependent: "Detection Latency (ms), False Positive Rate, Power Consumption",
+      control: "Ignition source intensity, Canopy density (simulated), Distance to target, Ambient temperature"
+    },
+    methodology: [
+      "Environment Setup: Construct a climate-controlled chamber simulating varying canopy densities.",
+      "Calibration: Synchronize event camera and thermal camera fields of view.",
+      "Testing Phase: Initiate controlled micro-ignition events and record sensor response times.",
+      "Data Analysis: Calculate median detection delay and analyze signal-to-noise ratio in high-clutter environments."
+    ],
+    metrics: ["Detection Latency", "SNR", "Power Draw (mW)", "False Alarm Rate"]
+  },
+  {
+    hypothesis: "Utilizing LLM-driven autonomous agents using localized knowledge bases will identify 25% more zero-day vulnerabilities in novel smart contract architectures compared to static analysis tools like Slither.",
+    variables: {
+      independent: "Analysis Method (LLM Agent Swarm vs Static Analysis Tool)",
+      dependent: "Vulnerabilities Found, False Positive Rate, Time to Detection",
+      control: "Smart contract complexity (LoC), Underlying blockchain protocol, Allowed execution time"
+    },
+    methodology: [
+      "Corpus Preparation: Select 50 recently audited, complex DeFi contracts spanning different logic paradigms.",
+      "Baseline Evaluation: Run standard static analysis (Slither/Mythril) and record findings.",
+      "Agent Deployment: Deploy a multi-agent LLM framework (Auditor, Attacker, Verifier) on the same corpus.",
+      "Comparison: Cross-reference findings with professional audit reports to determine true zero-day discovery rates."
+    ],
+    metrics: ["True Positive Rate", "False Positive Rate", "Vulnerabilities per Hour", "Logic Flaw Detection %"]
+  }
+];
+
 export default function ExperimentDesigner() {
   const [isDesigning, setIsDesigning] = useState(false);
   const [design, setDesign] = useState<null | any>(null);
+  const [designCount, setDesignCount] = useState(0);
 
   const handleDesign = () => {
     setIsDesigning(true);
+    const nextIndex = designCount % MOCK_DESIGNS.length;
+    
     setTimeout(() => {
-      setDesign({
-        hypothesis: "Implementing meta-learning techniques (MAML) on low-resolution bone X-ray datasets will improve classification accuracy of early osteoporosis by at least 10% compared to standard ResNet-50 architectures.",
-        variables: {
-          independent: "Training methodology (Standard CNN vs Meta-Learning)",
-          dependent: "Classification accuracy, False Negative Rate, Inference Time",
-          control: "Dataset size, Resolution limits, Hardware, Epochs"
-        },
-        methodology: [
-          "Data Preprocessing: Downsample high-res public datasets to simulate clinical low-res environments.",
-          "Model Setup: Initialize ResNet-50 as baseline and a MAML framework.",
-          "Training Phase: Train standard model on 80% split. Train MAML model on diverse but sparse tasks.",
-          "Evaluation: Compare models on a held-out test set focusing on minority demographic samples."
-        ],
-        metrics: ["Accuracy", "Precision", "Recall", "F1-Score", "AUC-ROC"]
-      });
+      setDesign(MOCK_DESIGNS[nextIndex]);
+      setDesignCount(prev => prev + 1);
       setIsDesigning(false);
     }, 2000);
   };
@@ -66,7 +104,7 @@ export default function ExperimentDesigner() {
               </span>
             ) : (
               <span className="flex items-center gap-2">
-                <Beaker className="w-5 h-5" /> Generate Experimental Design
+                <Sparkles className="w-5 h-5" /> Generate Experimental Design
               </span>
             )}
           </Button>
