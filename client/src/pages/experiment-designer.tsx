@@ -1,52 +1,45 @@
 import { useState } from "react";
-import { Microscope, Beaker, CheckCircle2, ChevronRight, Share2, Save, Sparkles } from "lucide-react";
+import { Microscope, Beaker, CheckCircle2, Share2, Save, Sparkles, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { designExperiment } from "@/lib/api";
+
+interface ExperimentDesign {
+  hypothesis: string;
+  variables: { independent: string; dependent: string; control: string };
+  methodology: string[];
+  metrics: string[];
+}
 
 export default function ExperimentDesigner() {
   const [isDesigning, setIsDesigning] = useState(false);
-  const [design, setDesign] = useState<null | any>(null);
+  const [design, setDesign] = useState<ExperimentDesign | null>(null);
   const [topicInput, setTopicInput] = useState("");
   const { toast } = useToast();
 
-  const handleDesign = () => {
+  const handleDesign = async () => {
     if (!topicInput.trim()) {
-      toast({
-        title: "Input required",
-        description: "Please enter a research idea before generating an experimental design.",
-        variant: "destructive"
-      });
+      toast({ title: "Input required", description: "Please enter a research idea before generating an experimental design.", variant: "destructive" });
       return;
     }
 
     setIsDesigning(true);
-    
-    setTimeout(() => {
-      setDesign({
-        hypothesis: `Applying advanced methodologies to "${topicInput}" will significantly improve performance and reveal novel insights compared to standard baseline approaches.`,
-        variables: {
-          independent: "Proposed Experimental Framework vs Traditional Baseline",
-          dependent: "Primary evaluation metrics (e.g., Accuracy, Efficiency, Error Rate)",
-          control: "Dataset constraints, Hardware environment, Testing parameters"
-        },
-        methodology: [
-          "Phase 1 - Preparation: Curate and preprocess the data specific to the defined domain.",
-          "Phase 2 - Setup: Establish baseline control models alongside the proposed experimental architecture.",
-          "Phase 3 - Execution: Run rigorous testing under controlled environments using standardized splits.",
-          "Phase 4 - Analysis: Compare results against baseline to determine statistically significant improvements."
-        ],
-        metrics: ["Primary Success Metric", "False Positive Rate", "Processing Latency", "Statistical Significance (p-value)"]
-      });
+    try {
+      const result = await designExperiment(topicInput);
+      setDesign(result);
+    } catch (error) {
+      toast({ title: "Design failed", description: "Could not generate experiment design. Please try again.", variant: "destructive" });
+    } finally {
       setIsDesigning(false);
-    }, 2000);
+    }
   };
 
   return (
     <div className="space-y-8 max-w-4xl mx-auto">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight mb-2 flex items-center gap-3">
+        <h1 className="text-3xl font-bold tracking-tight mb-2 flex items-center gap-3" data-testid="text-page-title">
           <div className="bg-emerald-500/10 p-2 rounded-lg text-emerald-600">
             <Microscope className="w-6 h-6" />
           </div>
@@ -68,16 +61,18 @@ export default function ExperimentDesigner() {
               className="min-h-[100px] text-lg resize-none"
               value={topicInput}
               onChange={(e) => setTopicInput(e.target.value)}
+              data-testid="input-topic"
             />
           </div>
           <Button 
             className="w-full text-lg h-12 bg-emerald-600 hover:bg-emerald-700 text-white"
             onClick={handleDesign}
             disabled={isDesigning}
+            data-testid="button-design"
           >
             {isDesigning ? (
               <span className="flex items-center gap-2">
-                <Beaker className="w-5 h-5 animate-bounce" /> Formulating Experiment...
+                <Loader2 className="w-5 h-5 animate-spin" /> Designing Experiment...
               </span>
             ) : (
               <span className="flex items-center gap-2">
@@ -98,7 +93,7 @@ export default function ExperimentDesigner() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
-                <p className="text-lg font-serif italic text-foreground/90 border-l-4 border-emerald-500 pl-4 py-1">
+                <p className="text-lg font-serif italic text-foreground/90 border-l-4 border-emerald-500 pl-4 py-1" data-testid="text-hypothesis">
                   "{design.hypothesis}"
                 </p>
               </CardContent>
@@ -156,15 +151,6 @@ export default function ExperimentDesigner() {
                 ))}
               </CardContent>
             </Card>
-
-            <div className="flex gap-3">
-              <Button variant="outline" className="flex-1">
-                <Share2 className="w-4 h-4 mr-2" /> Share
-              </Button>
-              <Button className="flex-1 bg-emerald-600 hover:bg-emerald-700">
-                <Save className="w-4 h-4 mr-2" /> Save Draft
-              </Button>
-            </div>
           </div>
         </div>
       )}

@@ -1,90 +1,58 @@
 import { useState } from "react";
-import { Lightbulb, Sparkles, BookmarkPlus, SlidersHorizontal, Trophy, Star } from "lucide-react";
+import { Lightbulb, Sparkles, BookmarkPlus, SlidersHorizontal, Trophy, Star, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
+import { generateTopics, saveTopic } from "@/lib/api";
 
-// Hardcoded array of highly novel ideas to simulate diverse, impressive AI generation
-const MOCK_NOVEL_IDEAS = [
-  [
-    {
-      topic: "Quantum-Inspired Algorithms for Protein Folding Prediction",
-      question: "Can tensor network approximations of quantum states accelerate the folding path prediction of intrinsically disordered proteins compared to AlphaFold2?",
-      scores: { novelty: 10, feasibility: 6, impact: 9 },
-      tags: ["Quantum Computing", "Bioinformatics", "Structural Biology"]
-    },
-    {
-      topic: "Acoustic Metamaterials for Passive Air Purification",
-      question: "How do 3D-printed labyrinthine acoustic metamaterials mitigate ambient VOCs (Volatile Organic Compounds) through resonant airflow manipulation?",
-      scores: { novelty: 9, feasibility: 8, impact: 8 },
-      tags: ["Materials Science", "Environmental Engineering", "Acoustics"]
-    },
-    {
-      topic: "Neuromorphic Vision Sensors for Early Wildfire Detection",
-      question: "Can event-based cameras out-perform traditional thermal imaging in detecting ignition-stage wildfires under thick canopy cover with microsecond latency?",
-      scores: { novelty: 8, feasibility: 7, impact: 10 },
-      tags: ["Neuromorphic Engineering", "Climate Tech", "Computer Vision"]
-    }
-  ],
-  [
-    {
-      topic: "Bacterial Cellulose as a Bio-degradable Battery Separator",
-      question: "Does the nano-porous structure of Komagataeibacter xylinus cellulose improve ion transport efficiency in solid-state lithium-ion batteries?",
-      scores: { novelty: 9, feasibility: 7, impact: 9 },
-      tags: ["Energy Storage", "Biomaterials", "Electrochemistry"]
-    },
-    {
-      topic: "LLMs as Autonomous Agents in Cryptographic Vulnerability Discovery",
-      question: "To what extent can multi-agent LLM systems autonomously detect zero-day logic flaws in newly deployed DeFi smart contracts without pre-trained patterns?",
-      scores: { novelty: 9, feasibility: 8, impact: 10 },
-      tags: ["Cybersecurity", "Blockchain", "Artificial Intelligence"]
-    },
-    {
-      topic: "Microplastic Degradation via Engineered Nematode Gut Microbiome",
-      question: "Can the introduction of modified Ideonella sakaiensis into C. elegans enhance the biodegradation rate of PET microplastics in soil environments?",
-      scores: { novelty: 10, feasibility: 5, impact: 10 },
-      tags: ["Bioremediation", "Microbiology", "Ecology"]
-    }
-  ],
-  [
-    {
-      topic: "Predicting Solar Flare Trajectories using Graph Neural Networks",
-      question: "Can spatiotemporal graph neural networks modeling solar magnetic flux topology predict the exact Earth-impact coordinates of Coronal Mass Ejections (CMEs)?",
-      scores: { novelty: 8, feasibility: 7, impact: 9 },
-      tags: ["Astrophysics", "Deep Learning", "Space Weather"]
-    },
-    {
-      topic: "Sonogenetic Control of Targeted Drug Delivery Nanoparticles",
-      question: "How efficiently can focused low-frequency ultrasound trigger the release of chemotherapeutics from lipid-polymer hybrid nanoparticles in deep tissue?",
-      scores: { novelty: 9, feasibility: 6, impact: 10 },
-      tags: ["Nanomedicine", "Oncology", "Biophysics"]
-    },
-    {
-      topic: "Decentralized Federated Learning for Privacy-Preserving Epidemic Forecasting",
-      question: "Does peer-to-peer federated learning using homomorphic encryption maintain high predictive accuracy for localized infectious disease outbreaks while ensuring zero patient data leakage?",
-      scores: { novelty: 8, feasibility: 9, impact: 9 },
-      tags: ["Epidemiology", "Cryptography", "Machine Learning"]
-    }
-  ]
-];
+interface TopicIdea {
+  topic: string;
+  question: string;
+  tags: string[];
+  scores: { novelty: number; feasibility: number; impact: number };
+}
 
 export default function TopicGenerator() {
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedTopics, setGeneratedTopics] = useState<any[] | null>(null);
-  const [generationCount, setGenerationCount] = useState(0);
+  const [generatedTopics, setGeneratedTopics] = useState<TopicIdea[] | null>(null);
+  const [field, setField] = useState("multidisciplinary");
+  const [tier, setTier] = useState("isef");
+  const [keywords, setKeywords] = useState("");
+  const [savingIndex, setSavingIndex] = useState<number | null>(null);
+  const { toast } = useToast();
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     setIsGenerating(true);
-    // Cycle through our mock idea sets
-    const nextIndex = generationCount % MOCK_NOVEL_IDEAS.length;
-    
-    setTimeout(() => {
-      setGeneratedTopics(MOCK_NOVEL_IDEAS[nextIndex]);
-      setGenerationCount(prev => prev + 1);
+    try {
+      const result = await generateTopics({ field, tier, keywords });
+      setGeneratedTopics(result.topics || []);
+    } catch (error) {
+      toast({ title: "Generation failed", description: "Could not generate topics. Please try again.", variant: "destructive" });
+    } finally {
       setIsGenerating(false);
-    }, 1500);
+    }
+  };
+
+  const handleSave = async (topic: TopicIdea, index: number) => {
+    setSavingIndex(index);
+    try {
+      await saveTopic({
+        topic: topic.topic,
+        question: topic.question,
+        tags: topic.tags,
+        noveltyScore: topic.scores.novelty,
+        feasibilityScore: topic.scores.feasibility,
+        impactScore: topic.scores.impact,
+      });
+      toast({ title: "Saved", description: `"${topic.topic}" saved to your collection.` });
+    } catch (error) {
+      toast({ title: "Save failed", description: "Could not save topic.", variant: "destructive" });
+    } finally {
+      setSavingIndex(null);
+    }
   };
 
   return (
@@ -94,7 +62,7 @@ export default function TopicGenerator() {
           <div className="bg-amber-500/10 p-2 rounded-lg text-amber-600">
             <Trophy className="w-6 h-6" />
           </div>
-          <h1 className="text-3xl font-bold tracking-tight">
+          <h1 className="text-3xl font-bold tracking-tight" data-testid="text-page-title">
             High-Impact Topic Generator
           </h1>
         </div>
@@ -115,8 +83,8 @@ export default function TopicGenerator() {
           <div className="grid md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <label className="text-sm font-medium">Field of Study</label>
-              <Select defaultValue="multidisciplinary">
-                <SelectTrigger>
+              <Select value={field} onValueChange={setField}>
+                <SelectTrigger data-testid="select-field">
                   <SelectValue placeholder="Select field" />
                 </SelectTrigger>
                 <SelectContent>
@@ -131,8 +99,8 @@ export default function TopicGenerator() {
             
             <div className="space-y-2">
               <label className="text-sm font-medium">Target Tier</label>
-              <Select defaultValue="isef">
-                <SelectTrigger>
+              <Select value={tier} onValueChange={setTier}>
+                <SelectTrigger data-testid="select-tier">
                   <SelectValue placeholder="Select tier" />
                 </SelectTrigger>
                 <SelectContent>
@@ -146,17 +114,23 @@ export default function TopicGenerator() {
 
           <div className="space-y-2">
             <label className="text-sm font-medium">Specific Interests or Keywords (Optional)</label>
-            <Input placeholder="e.g., quantum computing, sustainable materials, neuromorphic..." />
+            <Input 
+              placeholder="e.g., quantum computing, sustainable materials, neuromorphic..."
+              value={keywords}
+              onChange={(e) => setKeywords(e.target.value)}
+              data-testid="input-keywords"
+            />
           </div>
 
           <Button 
             className="w-full text-lg h-14 shadow-lg shadow-amber-500/20 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white border-0"
             onClick={handleGenerate}
             disabled={isGenerating}
+            data-testid="button-generate"
           >
             {isGenerating ? (
               <span className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 animate-spin" /> Mining Global Literature...
+                <Loader2 className="w-5 h-5 animate-spin" /> Generating Novel Ideas...
               </span>
             ) : (
               <span className="flex items-center gap-2">
@@ -167,27 +141,27 @@ export default function TopicGenerator() {
         </CardContent>
       </Card>
 
-      {generatedTopics && (
+      {generatedTopics && generatedTopics.length > 0 && (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold flex items-center gap-2">
               <Star className="w-5 h-5 text-amber-500 fill-amber-500" />
               Breakthrough Candidates
             </h2>
-            <Button variant="outline" onClick={handleGenerate}>
+            <Button variant="outline" onClick={handleGenerate} disabled={isGenerating}>
               <Sparkles className="w-4 h-4 mr-2" /> Generate Different Ideas
             </Button>
           </div>
 
           <div className="grid gap-6">
             {generatedTopics.map((topic, index) => (
-              <Card key={index} className="border-l-4 border-l-amber-500 shadow-md hover:shadow-lg transition-shadow">
+              <Card key={index} className="border-l-4 border-l-amber-500 shadow-md hover:shadow-lg transition-shadow" data-testid={`card-topic-${index}`}>
                 <CardContent className="p-6 md:p-8 space-y-6">
                   <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                     <div className="space-y-4 flex-1">
                       <div>
                         <h3 className="text-xs font-bold text-amber-600 uppercase tracking-wider mb-2">Topic {index + 1}</h3>
-                        <p className="text-2xl font-display font-semibold leading-tight">
+                        <p className="text-2xl font-display font-semibold leading-tight" data-testid={`text-topic-title-${index}`}>
                           {topic.topic}
                         </p>
                       </div>
@@ -206,7 +180,6 @@ export default function TopicGenerator() {
                       </div>
                     </div>
 
-                    {/* Score Panel */}
                     <div className="bg-muted/30 p-4 rounded-xl border shrink-0 md:w-48 flex flex-col justify-center space-y-3">
                       <div className="text-center">
                         <div className="text-sm font-semibold text-muted-foreground uppercase mb-1">Novelty</div>
@@ -222,8 +195,19 @@ export default function TopicGenerator() {
                         <div className="text-sm font-semibold text-muted-foreground uppercase mb-1">Feasibility</div>
                         <div className="text-2xl font-bold text-blue-600">{topic.scores.feasibility}/10</div>
                       </div>
-                      <Button size="sm" className="w-full mt-2 gap-2 bg-foreground text-background hover:bg-foreground/90">
-                        <BookmarkPlus className="w-4 h-4" /> Save
+                      <Button 
+                        size="sm" 
+                        className="w-full mt-2 gap-2 bg-foreground text-background hover:bg-foreground/90"
+                        onClick={() => handleSave(topic, index)}
+                        disabled={savingIndex === index}
+                        data-testid={`button-save-${index}`}
+                      >
+                        {savingIndex === index ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <BookmarkPlus className="w-4 h-4" />
+                        )}
+                        Save
                       </Button>
                     </div>
                   </div>

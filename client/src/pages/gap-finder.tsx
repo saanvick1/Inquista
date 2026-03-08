@@ -1,47 +1,45 @@
 import { useState } from "react";
-import { Search, Upload, Target, BrainCircuit, ArrowRight, Sparkles } from "lucide-react";
+import { Search, Upload, Target, BrainCircuit, ArrowRight, Sparkles, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { findGaps } from "@/lib/api";
+
+interface Gap {
+  title: string;
+  description: string;
+  impact: string;
+  difficulty: string;
+}
 
 export default function GapFinder() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [results, setResults] = useState<null | any>(null);
+  const [results, setResults] = useState<Gap[] | null>(null);
+  const [topicInput, setTopicInput] = useState("");
+  const { toast } = useToast();
 
-  const handleAnalyze = () => {
+  const handleAnalyze = async () => {
+    if (!topicInput.trim()) {
+      toast({ title: "Input required", description: "Please describe your research area.", variant: "destructive" });
+      return;
+    }
+
     setIsAnalyzing(true);
-    setTimeout(() => {
-      setResults({
-        gaps: [
-          {
-            title: "Limited datasets for knee X-rays in diverse populations",
-            impact: "High",
-            difficulty: "Medium",
-            description: "Current models are primarily trained on Caucasian data, leading to bias in inference across other demographics."
-          },
-          {
-            title: "Lack of meta-learning approaches for few-shot anomaly detection",
-            impact: "High",
-            difficulty: "Hard",
-            description: "Most papers rely on massive datasets. Applying meta-learning could solve the data-scarcity problem in rare bone diseases."
-          },
-          {
-            title: "Absence of real-time clinical deployment frameworks",
-            impact: "Medium",
-            difficulty: "Medium",
-            description: "Models show high accuracy in labs but lack lightweight architectures suitable for mobile or edge devices in clinics."
-          }
-        ]
-      });
+    try {
+      const data = await findGaps(topicInput);
+      setResults(data.gaps || []);
+    } catch (error) {
+      toast({ title: "Analysis failed", description: "Could not analyze the topic. Please try again.", variant: "destructive" });
+    } finally {
       setIsAnalyzing(false);
-    }, 2000);
+    }
   };
 
   return (
     <div className="space-y-8 max-w-4xl mx-auto">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight mb-2 flex items-center gap-3">
+        <h1 className="text-3xl font-bold tracking-tight mb-2 flex items-center gap-3" data-testid="text-page-title">
           <div className="bg-purple-500/10 p-2 rounded-lg text-purple-600">
             <Search className="w-6 h-6" />
           </div>
@@ -61,29 +59,21 @@ export default function GapFinder() {
                 <Textarea 
                   placeholder="e.g., Deep learning applications in medical imaging for bone disease detection..."
                   className="min-h-[120px] text-lg resize-none"
+                  value={topicInput}
+                  onChange={(e) => setTopicInput(e.target.value)}
+                  data-testid="input-topic"
                 />
-              </div>
-              
-              <div className="flex items-center gap-4">
-                <div className="h-px bg-border flex-1"></div>
-                <span className="text-sm text-muted-foreground uppercase font-bold tracking-wider">OR</span>
-                <div className="h-px bg-border flex-1"></div>
-              </div>
-
-              <div className="border-2 border-dashed border-muted-foreground/30 rounded-xl p-8 text-center hover:bg-muted/50 transition-colors cursor-pointer group">
-                <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-3 group-hover:text-primary transition-colors" />
-                <p className="text-sm font-medium">Upload Literature (PDFs)</p>
-                <p className="text-xs text-muted-foreground mt-1">AI will read and find gaps across your specific papers.</p>
               </div>
 
               <Button 
                 className="w-full text-lg h-12 bg-purple-600 hover:bg-purple-700 text-white shadow-lg shadow-purple-600/20"
                 onClick={handleAnalyze}
                 disabled={isAnalyzing}
+                data-testid="button-analyze"
               >
                 {isAnalyzing ? (
                   <span className="flex items-center gap-2">
-                    <BrainCircuit className="w-5 h-5 animate-pulse" /> Analyzing Literature...
+                    <Loader2 className="w-5 h-5 animate-spin" /> Analyzing Literature...
                   </span>
                 ) : (
                   <span className="flex items-center gap-2">
@@ -101,23 +91,23 @@ export default function GapFinder() {
               <CardTitle className="text-lg">Why find gaps?</CardTitle>
             </CardHeader>
             <CardContent className="text-sm text-muted-foreground space-y-3 font-serif">
-              <p>A strong research paper doesn't just replicate past work—it fills a void.</p>
-              <p>Our AI cross-references thousands of abstracts to identify contradictions, limitations, and "future work" suggestions left by other researchers.</p>
+              <p>A strong research paper doesn't just replicate past work — it fills a void.</p>
+              <p>Our AI cross-references existing knowledge to identify contradictions, limitations, and overlooked opportunities.</p>
             </CardContent>
           </Card>
         </div>
       </div>
 
-      {results && (
+      {results && results.length > 0 && (
         <div className="space-y-6 animate-in slide-in-from-bottom-8 duration-700">
-          <h2 className="text-2xl font-bold flex items-center gap-2">
+          <h2 className="text-2xl font-bold flex items-center gap-2" data-testid="text-results-heading">
             <Sparkles className="text-purple-500 w-6 h-6" /> 
             Discovered Opportunities
           </h2>
           
           <div className="space-y-4">
-            {results.gaps.map((gap: any, index: number) => (
-              <Card key={index} className="overflow-hidden group hover:shadow-md transition-shadow">
+            {results.map((gap, index) => (
+              <Card key={index} className="overflow-hidden group hover:shadow-md transition-shadow" data-testid={`card-gap-${index}`}>
                 <div className="flex flex-col md:flex-row">
                   <div className="p-6 flex-1">
                     <div className="flex items-start justify-between mb-3">
@@ -138,9 +128,6 @@ export default function GapFinder() {
                         {gap.difficulty}
                       </div>
                     </div>
-                    <Button variant="ghost" size="sm" className="mt-auto w-full group-hover:bg-purple-100 group-hover:text-purple-700">
-                      Use as Topic <ArrowRight className="w-4 h-4 ml-2" />
-                    </Button>
                   </div>
                 </div>
               </Card>
