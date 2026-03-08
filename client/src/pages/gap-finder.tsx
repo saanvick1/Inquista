@@ -11,6 +11,7 @@ interface Gap {
   description: string;
   impact: string;
   difficulty: string;
+  suggestion?: string;
 }
 
 export default function GapFinder() {
@@ -100,35 +101,45 @@ export default function GapFinder() {
 
       {results && results.length > 0 && (
         <div className="space-y-6 animate-in slide-in-from-bottom-8 duration-700">
-          <h2 className="text-2xl font-bold flex items-center gap-2" data-testid="text-results-heading">
-            <Sparkles className="text-purple-500 w-6 h-6" /> 
-            Discovered Opportunities
-          </h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold flex items-center gap-2" data-testid="text-results-heading">
+              <Sparkles className="text-purple-500 w-6 h-6" /> 
+              Most Impactful Gap Found
+            </h2>
+            <Button variant="outline" onClick={handleAnalyze} disabled={isAnalyzing} data-testid="button-find-another">
+              <Sparkles className="w-4 h-4 mr-2" /> Find a Different Gap
+            </Button>
+          </div>
           
           <div className="space-y-4">
             {results.map((gap, index) => (
-              <Card key={index} className="overflow-hidden group hover:shadow-md transition-shadow" data-testid={`card-gap-${index}`}>
-                <div className="flex flex-col md:flex-row">
-                  <div className="p-6 flex-1">
-                    <div className="flex items-start justify-between mb-3">
-                      <h3 className="text-xl font-bold font-display leading-tight">{gap.title}</h3>
-                    </div>
-                    <p className="text-muted-foreground font-serif">{gap.description}</p>
-                  </div>
-                  <div className="bg-muted/30 p-6 md:w-48 flex flex-row md:flex-col justify-between md:justify-center gap-4 border-t md:border-t-0 md:border-l">
+              <Card key={index} className="overflow-hidden shadow-md border-l-4 border-l-purple-500" data-testid={`card-gap-${index}`}>
+                <div className="p-6 md:p-8 space-y-5">
+                  <h3 className="text-2xl font-bold font-display leading-tight">{gap.title}</h3>
+                  
+                  <p className="text-muted-foreground font-serif text-lg leading-relaxed">{gap.description}</p>
+
+                  <div className="flex gap-6">
                     <div>
                       <div className="text-xs uppercase font-bold text-muted-foreground mb-1">Impact Potential</div>
-                      <div className={`font-bold ${gap.impact === 'High' ? 'text-emerald-600' : 'text-blue-600'}`}>
+                      <div className={`font-bold text-lg ${gap.impact === 'High' ? 'text-emerald-600' : 'text-blue-600'}`}>
                         {gap.impact}
                       </div>
                     </div>
                     <div>
                       <div className="text-xs uppercase font-bold text-muted-foreground mb-1">Difficulty</div>
-                      <div className={`font-bold ${gap.difficulty === 'Hard' ? 'text-orange-600' : 'text-blue-600'}`}>
+                      <div className={`font-bold text-lg ${gap.difficulty === 'Hard' ? 'text-orange-600' : gap.difficulty === 'Medium' ? 'text-amber-600' : 'text-blue-600'}`}>
                         {gap.difficulty}
                       </div>
                     </div>
                   </div>
+
+                  {gap.suggestion && (
+                    <div className="p-4 bg-purple-50/50 dark:bg-purple-950/20 rounded-xl border border-purple-500/20">
+                      <h4 className="text-xs font-bold text-purple-600 uppercase tracking-wider mb-2">Where to Start</h4>
+                      <p className="text-foreground/90">{gap.suggestion}</p>
+                    </div>
+                  )}
                 </div>
               </Card>
             ))}

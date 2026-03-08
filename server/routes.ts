@@ -79,23 +79,31 @@ Respond in this exact JSON format:
         return res.status(400).json({ error: "Topic description is required" });
       }
 
+      const seed = Math.floor(Math.random() * 1000000);
+
       const prompt = `You are a senior research analyst who identifies unexplored research gaps in academic literature.
 
-Analyze the following research area and identify 3 specific, actionable research gaps that have not been adequately addressed in existing literature:
+Analyze the following research area and identify the single MOST IMPACTFUL and underexplored research gap that has not been adequately addressed in existing literature:
 
 Topic: "${topic}"
 
-For each gap, provide:
+Randomization seed (use this to vary your perspective): ${seed}
+
+Provide:
 1. A clear, specific title for the gap
-2. Why this gap exists (what has been overlooked)
+2. A thorough explanation of why this gap exists, what has been overlooked, and why it matters (3-5 sentences)
 3. The potential impact if this gap were filled (High/Medium/Low)
 4. The difficulty of addressing this gap (Easy/Medium/Hard)
+5. A concrete suggestion for how a researcher could begin addressing this gap
 
-Focus on gaps that:
-- Are genuinely underexplored (not just "more data needed")
-- Could lead to publishable research
-- Combine insights from multiple subfields
-- Have real-world implications
+Focus on a gap that:
+- Is genuinely underexplored (not just "more data needed")
+- Could lead to a publishable paper or conference presentation
+- Combines insights from multiple subfields
+- Has real-world implications
+- Is scientifically accurate and grounded in reality
+
+IMPORTANT: Only return ONE gap — the single best opportunity you can identify. Make sure it is factually correct and defensible.
 
 Respond in this exact JSON format:
 {
@@ -104,7 +112,8 @@ Respond in this exact JSON format:
       "title": "gap title",
       "description": "detailed description of why this gap exists and what is missing",
       "impact": "High",
-      "difficulty": "Medium"
+      "difficulty": "Medium",
+      "suggestion": "concrete next step for a researcher"
     }
   ]
 }`;
@@ -113,7 +122,7 @@ Respond in this exact JSON format:
         model: "gpt-5.2",
         messages: [{ role: "user", content: prompt }],
         response_format: { type: "json_object" },
-        temperature: 0.8,
+        temperature: 0.9,
       });
 
       const content = response.choices[0]?.message?.content || "{}";
@@ -133,11 +142,21 @@ Respond in this exact JSON format:
         return res.status(400).json({ error: "Research idea is required" });
       }
 
+      const seed = Math.floor(Math.random() * 1000000);
+
       const prompt = `You are a methodologist who designs rigorous experimental frameworks for academic research.
 
 Design a complete experimental methodology for the following research idea:
 
 Research Idea: "${topic}"
+
+Randomization seed (use this to explore a COMPLETELY DIFFERENT experimental angle each time): ${seed}
+
+CRITICAL INSTRUCTION: You MUST design a fundamentally different experimental approach every time this prompt is called, even for the same topic. Vary these dimensions:
+- Use a different core methodology paradigm (e.g., comparative study vs ablation study vs longitudinal study vs case-control vs simulation-based vs survey-based vs mixed-methods)
+- Frame a different hypothesis angle (e.g., effectiveness vs efficiency vs fairness vs scalability vs generalization)
+- Propose different evaluation strategies and metrics
+- Suggest different data sources or collection methods
 
 Provide:
 1. A formal, testable hypothesis (specific and measurable)
@@ -145,12 +164,13 @@ Provide:
    - Independent variable(s)
    - Dependent variable(s)
    - Control variable(s)
-3. A step-by-step methodology (4-5 clear phases)
-4. Evaluation metrics (4-5 specific metrics relevant to this research)
+3. A step-by-step methodology (4-5 clear phases with detailed descriptions)
+4. Evaluation metrics (4-5 specific, relevant metrics)
 
-The design should be:
+The design MUST be:
+- Scientifically correct, reliable, and defensible
 - Rigorous enough for a top-tier conference submission
-- Specific to the actual topic (not generic)
+- Specific to the actual topic (absolutely no generic filler)
 - Practically executable by a motivated student researcher
 
 Respond in this exact JSON format:
@@ -174,7 +194,7 @@ Respond in this exact JSON format:
         model: "gpt-5.2",
         messages: [{ role: "user", content: prompt }],
         response_format: { type: "json_object" },
-        temperature: 0.7,
+        temperature: 1.0,
       });
 
       const content = response.choices[0]?.message?.content || "{}";
