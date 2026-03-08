@@ -1,0 +1,410 @@
+If you want to build a **unique AI Research Assistant on Replit**, the key is **not just “chat with AI.”** Most students build a basic chatbot. A **real research assistant** helps with the **entire research workflow**.
+
+Below is a **feature list that would make your research assistant genuinely impressive** (for college, users, and investors).
+
+---
+
+# Core Idea
+
+**An AI tool that guides a student through the entire research process.**
+
+Think of it like a **research co-pilot**.
+
+Possible name ideas:
+
+* Inquista (your existing idea)
+* ResearchPilot
+* ScholarAI
+* InsightLab
+
+---
+
+# 1. Research Topic Generator
+
+Students struggle most with **finding good topics**.
+
+Features:
+
+* Generate **novel research questions**
+* Filter by field:
+
+  * AI
+  * medicine
+  * climate
+  * economics
+  * neuroscience
+* Difficulty levels:
+
+  * high school
+  * undergraduate
+* “Make it more unique” button
+
+Example output:
+
+```
+Topic: Using Meta-Learning to Detect Early Osteoporosis
+Research Question:
+Can meta-learning improve classification accuracy for bone density abnormalities in low-resolution X-rays?
+```
+
+Extra feature:
+
+* **Novelty detector**
+
+  * Checks if topic is already overdone.
+
+---
+
+# 2. Research Paper Summarizer
+
+Users upload PDFs.
+
+AI extracts:
+
+* Abstract
+* Methods
+* Key results
+* Limitations
+* Future work
+
+Output format:
+
+```
+Key Idea
+Methodology
+Dataset Used
+Important Findings
+Limitations
+```
+
+This saves students **hours of reading**.
+
+---
+
+# 3. Literature Review Generator
+
+User enters a topic.
+
+Assistant:
+
+* finds papers
+* summarizes them
+* connects ideas
+
+Output example:
+
+```
+Theme 1: CNN-based bone detection
+Theme 2: Transfer learning approaches
+Theme 3: Meta-learning improvements
+```
+
+Extra:
+
+* auto-citation formatting (APA, MLA).
+
+---
+
+# 4. Research Gap Finder (Very Unique)
+
+Most tools don’t do this.
+
+AI analyzes papers and suggests:
+
+```
+Possible Research Gaps:
+1. Limited datasets for knee X-rays
+2. Lack of meta-learning approaches
+3. Lack of real-time detection models
+```
+
+This is **very impressive for science competitions**.
+
+---
+
+# 5. Experiment Designer
+
+User enters a research idea.
+
+Assistant suggests:
+
+```
+Hypothesis
+Variables
+Control group
+Experimental design
+Evaluation metrics
+```
+
+Example:
+
+Hypothesis:
+Meta-learning improves classification accuracy by 10%.
+
+Metrics:
+
+* accuracy
+* precision
+* recall
+* F1 score
+
+---
+
+# 6. Dataset Finder
+
+Students struggle to find datasets.
+
+Assistant searches sources like:
+
+* Kaggle
+* NIH
+* UCI Machine Learning Repository
+
+Output:
+
+```
+Dataset
+Size
+Link
+Best use case
+```
+
+---
+
+# 7. Method Suggestion Engine
+
+User enters a topic.
+
+Assistant suggests methods:
+
+Example for medical imaging:
+
+```
+Recommended Methods
+- CNN
+- Transfer learning
+- Meta-learning
+- Data augmentation
+```
+
+---
+
+# 8. Research Notebook
+
+A built-in **research workspace**.
+
+Users can store:
+
+* ideas
+* notes
+* citations
+* experiment results
+
+This turns the app into a **research operating system**.
+
+---
+
+# 9. Citation Generator
+
+Automatically format citations in:
+
+* APA
+* MLA
+* Chicago
+* IEEE
+
+Example:
+
+```
+Smith, J. (2023). Deep learning for bone detection...
+```
+
+---
+
+# 10. Code Generator
+
+For computational research.
+
+User enters:
+
+```
+Build a CNN for bone X-ray classification
+```
+
+Assistant generates:
+
+* Python
+* PyTorch
+* TensorFlow code
+
+Entities you could integrate:
+
+* PyTorch
+* TensorFlow
+
+---
+
+# 11. Graph Generator
+
+User enters data.
+
+Assistant generates:
+
+* regression plots
+* histograms
+* confusion matrices
+* statistical graphs
+
+---
+
+# 12. Hypothesis Tester
+
+User inputs dataset.
+
+Assistant suggests:
+
+* t-tests
+* ANOVA
+* regression
+* correlation
+
+Academic field:
+
+* Statistics
+
+---
+
+# 13. Research Paper Writer
+
+AI helps structure a paper.
+
+Sections generated:
+
+```
+Introduction
+Literature Review
+Methodology
+Results
+Discussion
+Conclusion
+```
+
+But it **assists**, not fully writes.
+
+---
+
+# 14. AI Research Mentor (Very Unique)
+
+Instead of a chatbot, it acts like a **mentor**.
+
+Example prompts:
+
+```
+Why is this research important?
+What are potential weaknesses?
+What could reviewers criticize?
+```
+
+This trains students to think like researchers.
+
+---
+
+# 15. Project Timeline Planner
+
+Students enter deadline.
+
+Assistant generates:
+
+```
+Week 1 – Topic research
+Week 2 – Literature review
+Week 3 – Dataset collection
+Week 4 – Model training
+Week 5 – Analysis
+Week 6 – Paper writing
+```
+
+---
+
+# Replit Tech Stack
+
+Suggested stack for Replit:
+
+Frontend
+
+* HTML
+* CSS
+* JavaScript
+
+Backend
+
+* Python
+* Flask
+
+AI APIs
+
+* Hugging Face models
+* Open models
+
+Database
+
+* SQLite
+* or Replit DB
+
+Libraries
+
+* pandas
+* matplotlib
+* scikit-learn
+
+---
+
+# Interface Pages
+
+Keep it simple.
+
+```
+Home
+Topic Generator
+Paper Summarizer
+Research Gap Finder
+Experiment Designer
+Datasets
+Code Lab
+Research Notebook
+```
+
+---
+
+# One Feature That Would Make It Viral
+
+**AI Research Idea Score**
+
+The assistant scores ideas:
+
+```
+Novelty: 8/10
+Feasibility: 7/10
+Impact: 9/10
+Competition Potential: High
+```
+
+Students love this.
+
+---
+
+# If you build these 3 features, it becomes very impressive:
+
+1. **Research Gap Finder**
+2. **Experiment Designer**
+3. **AI Research Idea Score**
+
+Almost **no student projects have these**.
+
+---
+
+If you want, I can also show you:
+
+* **The exact architecture for building this on Replit**
+* **How to make it 10× more impressive for college applications**
+* **How to turn this into a startup (this could actually be bigger than Quizou)**.
